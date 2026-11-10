@@ -15,7 +15,7 @@
         }
 
         .container {
-            max-width: 750px;
+            max-width: 850px;
             margin: auto;
             background: white;
             padding: 30px;
@@ -37,9 +37,27 @@
         button {
             background: #2563eb;
             color: white;
-            padding: 12px 25px;
+            padding: 10px 18px;
             border: none;
             cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .edit-btn {
+            background: #0891b2;
+        }
+
+        .delete-btn {
+            background: #dc2626;
+        }
+
+        .cancel-btn {
+            background: #64748b;
+            display: inline-block;
+            padding: 10px 18px;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
         }
 
         table {
@@ -67,6 +85,12 @@
         .error {
             color: red;
         }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
     </style>
 </head>
 
@@ -86,22 +110,56 @@
         @endforeach
     @endif
 
-    <h2>Add New Product</h2>
+    @if(isset($editingProduct))
 
-    <form action="/products" method="POST">
-        @csrf
+        <h2>Update Product</h2>
 
-        <input type="text" name="name"
-               placeholder="Product Name" required>
+        <form action="/products/update" method="POST">
+            @csrf
 
-        <input type="number" step="0.01" name="price"
-               placeholder="Product Price" required>
+            <input type="hidden" name="id"
+                   value="{{ $editingProduct->id }}">
 
-        <input type="number" name="quantity"
-               placeholder="Product Quantity" required>
+            <input type="text" name="name"
+                   value="{{ old('name', $editingProduct->name) }}"
+                   placeholder="Product Name" required>
 
-        <button type="submit">Add Product</button>
-    </form>
+            <input type="number" step="0.01" name="price"
+                   value="{{ old('price', $editingProduct->price) }}"
+                   placeholder="Product Price" required>
+
+            <input type="number" name="quantity"
+                   value="{{ old('quantity', $editingProduct->quantity) }}"
+                   placeholder="Product Quantity" required>
+
+            <button type="submit">Update Product</button>
+
+            <a href="/products" class="cancel-btn">Cancel</a>
+        </form>
+
+    @else
+
+        <h2>Add New Product</h2>
+
+        <form action="/products" method="POST">
+            @csrf
+
+            <input type="text" name="name"
+                   value="{{ old('name') }}"
+                   placeholder="Product Name" required>
+
+            <input type="number" step="0.01" name="price"
+                   value="{{ old('price') }}"
+                   placeholder="Product Price" required>
+
+            <input type="number" name="quantity"
+                   value="{{ old('quantity') }}"
+                   placeholder="Product Quantity" required>
+
+            <button type="submit">Add Product</button>
+        </form>
+
+    @endif
 
     <h2>Products List</h2>
 
@@ -111,16 +169,43 @@
             <th>Name</th>
             <th>Price</th>
             <th>Quantity</th>
+            <th>Actions</th>
         </tr>
 
         @foreach($products as $product)
+
         <tr>
             <td>{{ $product->id }}</td>
             <td>{{ $product->name }}</td>
             <td>{{ $product->price }}</td>
             <td>{{ $product->quantity }}</td>
+
+            <td>
+                <div class="actions">
+
+                    <form action="/products/edit/{{ $product->id }}"
+                          method="POST">
+                        @csrf
+                        <button type="submit" class="edit-btn">
+                            Edit
+                        </button>
+                    </form>
+
+                    <form action="/products/delete/{{ $product->id }}"
+                          method="POST"
+                          onsubmit="return confirm('Are you sure you want to delete this product?')">
+                        @csrf
+                        <button type="submit" class="delete-btn">
+                            Delete
+                        </button>
+                    </form>
+
+                </div>
+            </td>
         </tr>
+
         @endforeach
+
     </table>
 
 </div>
