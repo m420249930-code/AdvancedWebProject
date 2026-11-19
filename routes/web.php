@@ -3,10 +3,14 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+// ================= PRODUCTS =================
 
 // عرض المنتجات
 Route::get('/products', function () {
@@ -77,3 +81,21 @@ Route::post('/products/delete/{id}', function ($id) {
     return redirect('/products')
         ->with('success', 'Product deleted successfully!');
 });
+
+
+// ================= USERS =================
+
+// عرض المستخدمين
+Route::get('/users', [UserController::class, 'index']);
+
+// إضافة مستخدم
+Route::post('/users', [UserController::class, 'create']);
+
+// فتح فورم التعديل
+Route::post('/users/edit/{id}', [UserController::class, 'edit']);
+
+// حفظ التعديلات
+Route::post('/users/update', [UserController::class, 'update']);
+
+// حذف مستخدم
+Route::post('/users/delete/{id}', [UserController::class, 'destroy']);
