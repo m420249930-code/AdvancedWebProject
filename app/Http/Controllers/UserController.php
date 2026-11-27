@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -12,7 +11,7 @@ class UserController extends Controller
     // عرض المستخدمين
     public function index()
     {
-        $users = DB::table('users')->latest()->get();
+        $users = User::latest()->get();
 
         return view('users', compact('users'));
     }
@@ -26,22 +25,17 @@ class UserController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
-        DB::table('users')->insert([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        User::create($validated);
 
         return redirect('/users')
             ->with('success', 'User added successfully!');
     }
 
-    // حذف مستخدم
+    // حذف مستخدم باستخدام Eloquent
     public function destroy($id)
     {
-        DB::table('users')->where('id', $id)->delete();
+        $user = User::findOrFail($id);
+        $user->delete();
 
         return redirect('/users')
             ->with('success', 'User deleted successfully!');
@@ -50,18 +44,14 @@ class UserController extends Controller
     // فتح فورم التعديل
     public function edit($id)
     {
-        $editingUser = DB::table('users')
-            ->where('id', $id)
-            ->first();
+        $editingUser = User::findOrFail($id);
 
-        abort_if(!$editingUser, 404);
-
-        $users = DB::table('users')->latest()->get();
+        $users = User::latest()->get();
 
         return view('users', compact('users', 'editingUser'));
     }
 
-    // تحديث المستخدم
+    // تحديث المستخدم باستخدام Eloquent
     public function update(Request $request)
     {
         $validated = $request->validate([
@@ -75,19 +65,18 @@ class UserController extends Controller
             'password' => 'nullable|string|min:8',
         ]);
 
+        $user = User::findOrFail($validated['id']);
+
         $data = [
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'updated_at' => now(),
         ];
 
-        if ($request->filled('password')) {
-            $data['password'] = Hash::make($validated['password']);
+        if (!empty($validated['password'])) {
+            $data['password'] = $validated['password'];
         }
 
-        DB::table('users')
-            ->where('id', $validated['id'])
-            ->update($data);
+        $user->update($data);
 
         return redirect('/users')
             ->with('success', 'User updated successfully!');

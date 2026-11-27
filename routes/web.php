@@ -3,7 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TaskController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -99,3 +101,18 @@ Route::post('/users/update', [UserController::class, 'update']);
 
 // حذف مستخدم
 Route::post('/users/delete/{id}', [UserController::class, 'destroy']);
+
+
+// ================= TASKS =================
+
+// عرض المهام
+Route::get('/tasks', [TaskController::class, 'index']);
+
+// فتح فورم التعديل
+Route::post('/tasks/edit/{id}', [TaskController::class, 'edit']);
+
+// حفظ التعديلات
+Route::post('/tasks/update', [TaskController::class, 'update']);
+
+// حذف المهمة
+Route::post('/tasks/delete/{id}', [TaskController::class, 'destroy']);
